@@ -7,80 +7,93 @@
     <style>
         body, html {
             margin: 0; padding: 0; height: 100%; width: 100%;
-            background-color: #050505; /* 极暗底色 */
+            background-color: #111; 
             font-family: 'Songti SC', 'Noto Serif SC', 'SimSun', serif; 
-            color: rgba(255, 255, 255, 0.85);
+            color: rgba(255, 255, 255, 0.9);
             overflow: hidden; 
         }
         
-        /* 全局背景层：无论手机还是电脑，都铺满并模糊 */
+        /* 背景图：亮度调高至0.55，加入极其缓慢的呼吸动画 */
         .bg-image {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('bg.jpg'); /* 请确保图片名为 bg.jpg */
+            background-image: url('bg.jpg'); 
             background-size: cover;
             background-position: center;
-            filter: blur(8px) brightness(0.3); /* 模糊且压暗，烘托情绪 */
+            filter: brightness(0.55); 
             z-index: -1;
-            transform: scale(1.1); /* 防止模糊后边缘漏出白边 */
+            animation: breathe 30s infinite alternate ease-in-out;
         }
 
-        /* 初始播放遮罩：全屏覆盖，点击消失 */
+        /* 背景缓慢缩放动画 */
+        @keyframes breathe {
+            0% { transform: scale(1.0); }
+            100% { transform: scale(1.15); }
+        }
+
+        /* 初始播放遮罩 */
         #play-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 10; cursor: pointer;
             transition: opacity 1.5s ease;
         }
         .play-text {
-            font-size: 14px; letter-spacing: 4px; opacity: 0.7;
-            animation: pulse 2s infinite;
+            font-size: 15px; letter-spacing: 6px; opacity: 0.8;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            animation: pulse 2.5s infinite;
         }
         @keyframes pulse {
-            0% { opacity: 0.3; } 50% { opacity: 0.9; } 100% { opacity: 0.3; }
+            0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; }
         }
 
-        /* ★ 核心升级：阅读区容器 ★ */
+        /* 核心升级：高级磨砂玻璃（Frosted Glass）阅读区 */
         .reader-wrapper {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; justify-content: center; /* 电脑端居中 */
-            opacity: 0; /* 初始隐藏，点击后渐显 */
-            transition: opacity 2.5s ease;
+            display: flex; justify-content: center; 
+            opacity: 0; 
+            transition: opacity 3s ease;
             z-index: 5;
         }
 
-        /* 歌词内容区：手机上全宽，电脑上限制宽度 */
         .lyrics-container {
             width: 100%;
-            max-width: 600px; /* 限制最大宽度，电脑上看就不会太宽 */
+            max-width: 500px; /* 电脑端收窄，更像手机屏幕 */
             height: 100%;
             box-sizing: border-box; 
             padding: 15% 10% 20% 10%;
             overflow-y: auto; 
             -webkit-overflow-scrolling: touch;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.3)); /* 微微的渐变遮罩增强文字阅读性 */
+            
+            /* 毛玻璃特效代码 */
+            background: rgba(20, 20, 20, 0.2); /* 微微透明的黑底 */
+            backdrop-filter: blur(12px); /* 背景极度模糊 */
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 0 40px rgba(0,0,0,0.5); /* 边缘阴影 */
         }
         
-        .lyrics-container::-webkit-scrollbar { display: none; } /* 隐藏滚动条 */
+        .lyrics-container::-webkit-scrollbar { display: none; } 
 
-        /* 文字排版美学 */
         .title {
-            font-size: 24px; font-weight: normal; margin-bottom: 8px; letter-spacing: 3px;
+            font-size: 26px; font-weight: normal; margin-bottom: 10px; letter-spacing: 4px;
+            text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
         .subtitle {
-            font-size: 12px; opacity: 0.4; margin-bottom: 45px; letter-spacing: 2px;
+            font-size: 12px; opacity: 0.5; margin-bottom: 50px; letter-spacing: 2px;
+            text-align: center;
         }
         .lyric-line {
-            font-size: 15px; line-height: 2.2; margin-bottom: 12px; letter-spacing: 1px;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8); /* 增加文字阴影，防止在雪山高光处看不清 */
+            font-size: 16px; line-height: 2.4; margin-bottom: 12px; letter-spacing: 1.5px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.9); /* 文字阴影确保清晰 */
+            text-align: justify;
         }
-        .lyric-blank { height: 25px; } 
+        .lyric-blank { height: 30px; } 
     </style>
 </head>
 <body>
 
     <div class="bg-image"></div>
-    <audio id="bg-music" src="music.mp3"></audio> <!-- 确保音频名为 music.mp3 -->
+    <audio id="bg-music" src="music.mp3"></audio>
 
     <div id="play-overlay" onclick="startMemory()">
         <div class="play-text">点击触碰回忆</div>
@@ -99,7 +112,7 @@
             
             <div class="lyric-line">后来阴差阳错 我又回到了这里<br>你眼里的惊讶 像第一次见到我</div>
             <div class="lyric-line">运动会那天清晨 你美得像落入凡间<br>我用一丝戏谑 掩饰心里的慌乱</div>
-            <div class="lyric-line">你微微幽怨的眼神 成了我一生的画面<br>食堂里坐在你对面 偷来短短的体面</div>
+            <div class="lyric-line">你微微幽怨的眼神 成了我一生的画面<br>食堂里坐在你对面 假装只是偶然<br>那短短的一顿饭 后来想了很多年</div>
             
             <div class="lyric-blank"></div>
             
