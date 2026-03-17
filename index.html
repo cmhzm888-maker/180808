@@ -4,94 +4,73 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>八月八日</title>
-    <link rel="preload" href="bg.jpg" as="image">
     <style>
         body, html {
             margin: 0; padding: 0; height: 100%; width: 100%;
-            background-color: transparent; 
+            /* 极简深邃背景：从中央微微发亮的深灰渐变到纯黑，零加载时间 */
+            background: radial-gradient(circle at center, #2a2c30 0%, #050505 100%);
             font-family: 'Songti SC', 'Noto Serif SC', 'SimSun', serif; 
-            color: rgba(255, 255, 255, 0.9);
+            color: rgba(255, 255, 255, 0.85);
             overflow: hidden; 
         }
-        
-        /* 背景图：亮度调高至0.55，加入极其缓慢的呼吸动画 */
-        .bg-image {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('bg.jpg'); 
-            background-size: cover;
-            background-position: center;
-            filter: brightness(0.55); 
-            z-index: -1;
-            animation: breathe 30s infinite alternate ease-in-out;
-        }
 
-        /* 背景缓慢缩放动画 */
-        @keyframes breathe {
-            0% { transform: scale(1.0); }
-            100% { transform: scale(1.15); }
-        }
-
-        /* 初始播放遮罩 */
+        /* 初始播放遮罩：点击消失 */
         #play-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            background: rgba(0, 0, 0, 0.5);
+            background-color: transparent;
             z-index: 10; cursor: pointer;
-            transition: opacity 1.5s ease;
+            transition: opacity 1s ease;
         }
         .play-text {
-            font-size: 15px; letter-spacing: 6px; opacity: 0.8;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            font-size: 14px; letter-spacing: 6px; opacity: 0.7;
             animation: pulse 2.5s infinite;
         }
         @keyframes pulse {
-            0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; }
+            0% { opacity: 0.2; } 50% { opacity: 1; } 100% { opacity: 0.2; }
         }
 
-        /* 核心升级：高级磨砂玻璃（Frosted Glass）阅读区 */
+        /* 歌词区：居中，优雅浮现 */
         .reader-wrapper {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; justify-content: center; 
             opacity: 0; 
-            transition: opacity 3s ease;
+            transition: opacity 2.5s ease;
             z-index: 5;
         }
 
         .lyrics-container {
             width: 100%;
-            max-width: 500px; /* 电脑端收窄，更像手机屏幕 */
+            max-width: 600px; 
             height: 100%;
             box-sizing: border-box; 
-            padding: 15% 10% 20% 10%;
+            padding: 15% 10% 25% 10%;
             overflow-y: auto; 
             -webkit-overflow-scrolling: touch;
-            
-            /* 毛玻璃特效代码 */
-
         }
         
         .lyrics-container::-webkit-scrollbar { display: none; } 
 
+        /* 文字排版 */
         .title {
-            font-size: 26px; font-weight: normal; margin-bottom: 10px; letter-spacing: 4px;
-            text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            font-size: 24px; font-weight: normal; margin-bottom: 10px; letter-spacing: 4px;
+            text-align: center; color: #fff;
         }
         .subtitle {
-            font-size: 12px; opacity: 0.5; margin-bottom: 50px; letter-spacing: 2px;
+            font-size: 12px; opacity: 0.4; margin-bottom: 50px; letter-spacing: 2px;
             text-align: center;
         }
         .lyric-line {
-            font-size: 16px; line-height: 2.4; margin-bottom: 12px; letter-spacing: 1.5px;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.9); /* 文字阴影确保清晰 */
-            text-align: justify;
+            font-size: 15px; line-height: 2.4; margin-bottom: 14px; letter-spacing: 1.5px;
+            text-align: justify; opacity: 0.9;
         }
-        .lyric-blank { height: 30px; } 
+        .lyric-blank { height: 35px; } 
     </style>
 </head>
 <body>
 
-    <div class="bg-image"></div>
-    <audio id="bg-music" src="music.mp3"></audio>
+    <!-- 音乐预加载机制 -->
+    <audio id="bg-music" src="music.mp3" preload="auto"></audio>
 
     <div id="play-overlay" onclick="startMemory()">
         <div class="play-text">点击触碰回忆</div>
@@ -102,7 +81,7 @@
             <div class="title">八月八日</div>
             <div class="subtitle">2018 - 2026</div>
             
-            <div class="lyric-line">银霄路的清晨 站着等班车的人<br>二零一八的风 吹过刚醒的街灯</div>
+            <div class="lyric-line">龙阳路的清晨 站着等班车的人<br>二零一八的风 吹过刚醒的街灯</div>
             <div class="lyric-line">我开始算你的时间 算你会坐哪一班车<br>好像只要算得够准 就一定能遇见你</div>
             <div class="lyric-line">那句唐突的喜欢 随口留在了风里<br>没等你开口回应 转身我就离去</div>
             
@@ -110,7 +89,7 @@
             
             <div class="lyric-line">后来阴差阳错 我又回到了这里<br>你眼里的惊讶 像第一次见到我</div>
             <div class="lyric-line">运动会那天清晨 你美得像落入凡间<br>我用一丝戏谑 掩饰心里的慌乱</div>
-            <div class="lyric-line">你微微幽怨的眼神 成了我一生的画面<br>食堂里坐在你对面 假装只是偶然<br>那短短的一顿饭 后来想了很多年</div>
+            <div class="lyric-line">你微微幽怨的眼神 成了我一生的画面<br>食堂里坐在你对面 偷来短短的体面</div>
             
             <div class="lyric-blank"></div>
             
@@ -161,7 +140,7 @@
             setTimeout(function() {
                 overlay.style.display = 'none';
                 reader.style.opacity = '1';
-            }, 1500);
+            }, 800);
         }
     </script>
 </body>
