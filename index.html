@@ -7,141 +7,238 @@
     <style>
         body, html {
             margin: 0; padding: 0; height: 100%; width: 100%;
-            /* 极简深邃背景：从中央微微发亮的深灰渐变到纯黑，零加载时间 */
-            background: radial-gradient(circle at center, #2a2c30 0%, #050505 100%);
+            background-color: #121212; /* 深邃的高级黑底色 */
             font-family: 'Songti SC', 'Noto Serif SC', 'SimSun', serif; 
             color: rgba(255, 255, 255, 0.85);
-            overflow: hidden; 
+            display: flex; flex-direction: column; align-items: center;
         }
 
-        /* 初始播放遮罩：点击消失 */
-        #play-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            background-color: transparent;
-            z-index: 10; cursor: pointer;
-            transition: opacity 1s ease;
-        }
-        .play-text {
-            font-size: 14px; letter-spacing: 6px; opacity: 0.7;
-            animation: pulse 2.5s infinite;
-        }
-        @keyframes pulse {
-            0% { opacity: 0.2; } 50% { opacity: 1; } 100% { opacity: 0.2; }
+        /* 顶部播放器区域 */
+        .player-section {
+            width: 100%; max-width: 500px;
+            padding: 40px 20px 20px 20px;
+            box-sizing: border-box;
+            display: flex; flex-direction: column; align-items: center;
+            background: linear-gradient(to bottom, #1a1a1a, #121212);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            z-index: 10;
         }
 
-        /* 歌词区：居中，优雅浮现 */
-        .reader-wrapper {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; justify-content: center; 
-            opacity: 0; 
-            transition: opacity 2.5s ease;
-            z-index: 5;
+        /* 黑胶唱片动画 */
+        .vinyl-container {
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            background-color: #000;
+            border: 4px solid #2a2a2a;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8), inset 0 0 10px rgba(255,255,255,0.1);
+            display: flex; justify-content: center; align-items: center;
+            margin-bottom: 25px;
+            animation: spin 8s linear infinite;
+            animation-play-state: paused; /* 初始暂停 */
         }
+        .vinyl-cover {
+            width: 70px; height: 70px;
+            border-radius: 50%;
+            background-image: url('vinyl.jpg'); /* 唱片中间的封面图 */
+            background-size: cover;
+            background-position: center;
+            border: 2px solid #111;
+        }
+        .vinyl-center {
+            position: absolute; width: 12px; height: 12px;
+            background-color: #121212; border-radius: 50%;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        .lyrics-container {
-            width: 100%;
-            max-width: 600px; 
-            height: 100%;
-            box-sizing: border-box; 
-            padding: 15% 10% 25% 10%;
-            overflow-y: auto; 
-            -webkit-overflow-scrolling: touch;
+        /* 进度条与时间 */
+        .progress-container {
+            width: 100%; display: flex; align-items: center; justify-content: space-between;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 12px; color: rgba(255,255,255,0.5);
+            margin-bottom: 20px;
+        }
+        input[type=range] {
+            flex-grow: 1; margin: 0 15px;
+            -webkit-appearance: none; background: transparent;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 3px; background: #333; border-radius: 2px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 10px; width: 10px;
+            border-radius: 50%; background: #ccc; margin-top: -3.5px; cursor: pointer;
         }
         
-        .lyrics-container::-webkit-scrollbar { display: none; } 
-
-        /* 文字排版 */
-        .title {
-            font-size: 24px; font-weight: normal; margin-bottom: 10px; letter-spacing: 4px;
-            text-align: center; color: #fff;
+        /* 控制按钮 */
+        .controls { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; }
+        .play-btn {
+            width: 45px; height: 45px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3);
+            background: transparent; color: rgba(255,255,255,0.8);
+            font-size: 16px; display: flex; justify-content: center; align-items: center;
+            cursor: pointer; outline: none; transition: all 0.3s;
         }
-        .subtitle {
-            font-size: 12px; opacity: 0.4; margin-bottom: 50px; letter-spacing: 2px;
-            text-align: center;
+        .play-btn:active { background: rgba(255,255,255,0.1); }
+
+        /* 下载温馨提示 */
+        .download-tip {
+            font-size: 12px; color: rgba(255,255,255,0.4); text-align: center;
+            letter-spacing: 1px; font-family: -apple-system, sans-serif;
+        }
+        .download-link {
+            color: rgba(255,255,255,0.7); text-decoration: underline; margin-left: 5px;
+        }
+
+        /* 下方歌词滚动区 */
+        .lyrics-section {
+            flex-grow: 1; width: 100%; max-width: 500px;
+            overflow-y: auto; box-sizing: border-box; padding: 30px 10% 50px 10%;
+            -webkit-overflow-scrolling: touch;
+        }
+        .lyrics-section::-webkit-scrollbar { display: none; }
+
+        .lyric-chapter {
+            font-size: 12px; opacity: 0.3; margin-top: 30px; margin-bottom: 10px; letter-spacing: 1px;
+            text-align: center; font-style: italic;
         }
         .lyric-line {
-            font-size: 15px; line-height: 2.4; margin-bottom: 14px; letter-spacing: 1.5px;
-            text-align: justify; opacity: 0.9;
+            font-size: 15px; line-height: 2.2; margin-bottom: 10px; letter-spacing: 1px;
+            text-align: center; opacity: 0.85;
         }
-        .lyric-blank { height: 35px; } 
+        .lyric-blank { height: 15px; }
+
     </style>
 </head>
 <body>
 
-    <!-- 音乐预加载机制 -->
-    <audio id="bg-music" src="music.mp3" preload="auto"></audio>
+    <audio id="audio" src="music.mp3" preload="metadata"></audio>
 
-    <div id="play-overlay" onclick="startMemory()">
-        <div class="play-text">点击触碰回忆</div>
-    </div>
+    <!-- 顶部播放器 -->
+    <div class="player-section">
+        <div class="vinyl-container" id="vinyl">
+            <div class="vinyl-cover"></div>
+            <div class="vinyl-center"></div>
+        </div>
+        
+        <div class="progress-container">
+            <span id="current-time">0:00</span>
+            <input type="range" id="progress-bar" value="0" max="100">
+            <span id="duration">0:00</span>
+        </div>
 
-    <div class="reader-wrapper" id="reader">
-        <div class="lyrics-container">
-            <div class="title">八月八日</div>
-            <div class="subtitle">2018 - 2026</div>
-            
-            <div class="lyric-line">龙阳路的清晨 站着等班车的人<br>二零一八的风 吹过刚醒的街灯</div>
-            <div class="lyric-line">我开始算你的时间 算你会坐哪一班车<br>好像只要算得够准 就一定能遇见你</div>
-            <div class="lyric-line">那句唐突的喜欢 随口留在了风里<br>没等你开口回应 转身我就离去</div>
-            
-            <div class="lyric-blank"></div>
-            
-            <div class="lyric-line">后来阴差阳错 我又回到了这里<br>你眼里的惊讶 像第一次见到我</div>
-            <div class="lyric-line">运动会那天清晨 你美得像落入凡间<br>我用一丝戏谑 掩饰心里的慌乱</div>
-            <div class="lyric-line">你微微幽怨的眼神 成了我一生的画面<br>食堂里坐在你对面 偷来短短的体面</div>
-            
-            <div class="lyric-blank"></div>
-            
-            <div class="lyric-line">如果不是那条 龙阳路<br>我可能永远 不会说出口</div>
-            <div class="lyric-line">在这个拥挤的 城市路口<br>我把一句喜欢 留在了风中</div>
-            <div class="lyric-line">你是我 永远无需占有的 远山<br>我只能 隔着时空 独自去折返</div>
+        <div class="controls">
+            <button class="play-btn" id="play-btn" onclick="togglePlay()">▶</button>
+        </div>
 
-            <div class="lyric-blank"></div>
-
-            <div class="lyric-line">有些美好 靠得太近就会碎<br>有些喜欢 只能远远地跟随</div>
-            <div class="lyric-line">那天我站在人群里<br>没再说第二句</div>
-
-            <div class="lyric-blank"></div>
-
-            <div class="lyric-line">八月八日的黄昏 龙阳路的地铁口<br>我站在出口那里 等你从楼梯上来</div>
-            <div class="lyric-line">你抱着离职的文具 忽然停住了脚步<br>那一刻的惊讶 我一直没忘</div>
-            <div class="lyric-line">向西走的那几百米 陪你回家的路段<br>你没有转身离开 而是长长地看了一眼</div>
-
-            <div class="lyric-blank"></div>
-
-            <div class="lyric-line">八年后的雪山下<br>我走过你走的路<br>假装这是一场<br>迟到了很久的奔赴</div>
-
-            <div class="lyric-blank"></div>
-
-            <div class="lyric-line">如果不是那条 龙阳路<br>我可能永远 不会说出口</div>
-            <div class="lyric-line">在这个拥挤的 城市路口<br>我把一句喜欢 留在了风中</div>
-            <div class="lyric-line">你是我 永远无需占有的 远山<br>我只能 隔着时空 独自去折返</div>
-
-            <div class="lyric-blank"></div>
-
-            <div class="lyric-line">就停在这里吧<br>不需要拥有<br>就停在这里吧<br>在这条 龙阳路</div>
-            <div class="lyric-line">如果那天 没有那条龙阳路……<br>我可能不会知道<br>遗憾……也能这么幸福。</div>
-            
-            <div class="lyric-blank"></div>
-            <div class="lyric-blank"></div>
+        <div class="download-tip">
+            网络卡顿？可以 <a class="download-link" href="music.mp3" download="八月八日_龙阳路.mp3">下载原曲珍藏</a>
         </div>
     </div>
 
+    <!-- 下方歌词区 -->
+    <div class="lyrics-section">
+        
+        <div class="lyric-chapter">(Verse 1 - 龙阳路与算时间)</div>
+        <div class="lyric-line">龙阳路的清晨 站着等班车的人<br>二零一八的风 吹过刚醒的街灯</div>
+        <div class="lyric-line">我开始算你的时间 算你会坐哪一班车<br>好像只要算得够准 就一定能遇见你</div>
+        <div class="lyric-line">那句唐突的喜欢 随口留在了风里<br>没等你开口回应 转身我就离去</div>
+        
+        <div class="lyric-chapter">(Verse 2 - 重逢)</div>
+        <div class="lyric-line">后来阴差阳错 我又回到了这里<br>你眼里的惊讶 像第一次见到我</div>
+        <div class="lyric-line">运动会那天清晨 你美得像落入凡间<br>我用一丝戏谑 掩饰心里的慌乱</div>
+        <div class="lyric-line">你微微幽怨的眼神 成了我一生的画面<br>食堂里坐在你对面 假装只是偶然<br>那短短的一顿饭 后来想了很多年</div>
+        
+        <div class="lyric-chapter">(Chorus - 核心记忆)</div>
+        <div class="lyric-line">如果不是那条 龙阳路<br>我可能永远 不会说出口</div>
+        <div class="lyric-line">在这个拥挤的 地铁路口<br>我把一句喜欢 留在了风中</div>
+        <div class="lyric-line">你是我 永远无需占有的 远山<br>我只能 隔着时空 独自去折返</div>
+
+        <div class="lyric-chapter">(Bridge - 克制)</div>
+        <div class="lyric-line">有些美好 靠得太近就会碎<br>有些喜欢 只能远远地跟随</div>
+        <div class="lyric-line">那天我站在人群里<br>没再说第二句</div>
+
+        <div class="lyric-chapter">(Verse 3 - 最后的八月八日)</div>
+        <div class="lyric-line">八月八日的黄昏 龙阳路的地铁口<br>我站在出口那里 等你从楼梯上来</div>
+        <div class="lyric-line">你抱着离职的文具 忽然停住了脚步<br>那一刻的惊讶 我一直没忘</div>
+        <div class="lyric-line">向西走的那几百米 陪你回家的路段<br>你没有转身离开 而是长长地看了一眼</div>
+
+        <div class="lyric-blank"></div>
+
+        <div class="lyric-line">八年后的雪山下<br>我走过你走的路<br>假装这是一场<br>迟到了很久的奔赴</div>
+
+        <div class="lyric-chapter">(Chorus)</div>
+        <div class="lyric-line">如果不是那条 龙阳路<br>我可能永远 不会说出口</div>
+        <div class="lyric-line">在这个拥挤的 地铁路口<br>我把一句喜欢 留在了风中</div>
+        <div class="lyric-line">你是我 永远无需占有的 远山<br>我只能 隔着时空 独自去折返</div>
+
+        <div class="lyric-chapter">(Outro)</div>
+        <div class="lyric-line">就停在这里吧<br>不需要拥有<br>就停在这里吧<br>在这条 龙阳路</div>
+        <div class="lyric-blank"></div>
+        <div class="lyric-line">如果那天 没有那条龙阳路……<br>我可能不会知道<br>遗憾……也能这么幸福。</div>
+        
+        <div class="lyric-blank"></div>
+        <div class="lyric-blank"></div>
+    </div>
+
+    <!-- 播放器逻辑 -->
     <script>
-        function startMemory() {
-            var audio = document.getElementById('bg-music');
-            var overlay = document.getElementById('play-overlay');
-            var reader = document.getElementById('reader');
-            
-            audio.play();
-            
-            overlay.style.opacity = '0';
-            setTimeout(function() {
-                overlay.style.display = 'none';
-                reader.style.opacity = '1';
-            }, 800);
+        const audio = document.getElementById('audio');
+        const playBtn = document.getElementById('play-btn');
+        const vinyl = document.getElementById('vinyl');
+        const progressBar = document.getElementById('progress-bar');
+        const currentTimeEl = document.getElementById('current-time');
+        const durationEl = document.getElementById('duration');
+
+        let isPlaying = false;
+
+        // 格式化时间 (秒 -> 分:秒)
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return m + ':' + (s < 10 ? '0' : '') + s;
         }
+
+        // 音乐加载完成后显示总时长
+        audio.addEventListener('loadedmetadata', () => {
+            durationEl.textContent = formatTime(audio.duration);
+            progressBar.max = Math.floor(audio.duration);
+        });
+
+        // 播放/暂停控制
+        function togglePlay() {
+            if (isPlaying) {
+                audio.pause();
+                playBtn.textContent = '▶';
+                vinyl.style.animationPlayState = 'paused';
+            } else {
+                audio.play();
+                playBtn.textContent = '||';
+                vinyl.style.animationPlayState = 'running';
+            }
+            isPlaying = !isPlaying;
+        }
+
+        // 更新进度条和当前时间
+        audio.addEventListener('timeupdate', () => {
+            currentTimeEl.textContent = formatTime(audio.currentTime);
+            if (!progressBar.matches(':active')) {
+                progressBar.value = Math.floor(audio.currentTime);
+            }
+        });
+
+        // 拖动进度条改变播放位置
+        progressBar.addEventListener('input', () => {
+            audio.currentTime = progressBar.value;
+        });
+        
+        // 播放结束重置
+        audio.addEventListener('ended', () => {
+            isPlaying = false;
+            playBtn.textContent = '▶';
+            vinyl.style.animationPlayState = 'paused';
+            progressBar.value = 0;
+            currentTimeEl.textContent = "0:00";
+        });
     </script>
 </body>
 </html>
